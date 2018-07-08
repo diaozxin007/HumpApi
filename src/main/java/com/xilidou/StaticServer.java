@@ -19,7 +19,7 @@ public class StaticServer extends AbstractVerticle {
 	@Override
 	public void start() throws Exception {
 		Router router = Router.router(vertx);
-		router.route("/api").handler(routingContext ->variableHandler.get(routingContext));
+		router.route("/api/hump").handler(routingContext ->variableHandler.get(routingContext));
 		vertx.createHttpServer().requestHandler(router::accept).listen(8080);
 
 	}
