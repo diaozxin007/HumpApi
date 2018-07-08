@@ -61,6 +61,8 @@ public class VariableHandler {
 		String param = routingContext.request().getParam("q");
 		String statusStr = routingContext.request().getParam("status");
 
+		log.info("q is {}, and status is {}",param,statusStr);
+
 		int status = NumberUtils.toInt(statusStr,0);
 
 		List<String> result = new ArrayList<>();
@@ -96,7 +98,7 @@ public class VariableHandler {
     }
 
 	private String getWord(ApiResponse apiResponse){
-        if(apiResponse.getBasic() != null){
+        if(apiResponse.getErrorCode() == 0 && apiResponse.getBasic() != null){
             return apiResponse.getBasic().getExplains().get(0);
         }
 

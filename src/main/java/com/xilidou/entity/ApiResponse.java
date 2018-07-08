@@ -9,7 +9,7 @@ import java.util.List;
 @ToString
 public class ApiResponse {
 
-	private String errorCode;
+	private int errorCode;
 
 	private String query;
 
