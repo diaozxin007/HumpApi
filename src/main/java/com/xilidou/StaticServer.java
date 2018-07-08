@@ -24,5 +24,4 @@ public class StaticServer extends AbstractVerticle {
 
 	}
 
-
 }
