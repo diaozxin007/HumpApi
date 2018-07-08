@@ -59,16 +59,24 @@ public class VariableHandler {
 	public void get(RoutingContext routingContext){
 
 		String param = routingContext.request().getParam("q");
-		String statusStr = routingContext.request().getParam("status");
+		String statusStr =routingContext.request().getParam("status");
 
 		log.info("q is {}, and status is {}",param,statusStr);
 
+        HttpServerResponse response =routingContext.response();
+        response.putHeader("content-type","application/json");
+        List<String> result = new ArrayList<>();
+
+		if(param == null || " ".equals(param)){
+		    result.add("request is null");
+            response.end(JsonUtils.writeValue(result));
+        }
+
 		int status = NumberUtils.toInt(statusStr,0);
 
-		List<String> result = new ArrayList<>();
 
-		HttpServerResponse response =routingContext.response();
-		response.putHeader("content-type","application/json");
+
+
 
 		ApiResponse apiResponse = cachedResponse(param);
         List<String> translations = getTranslations(apiResponse,status);
