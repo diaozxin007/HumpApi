@@ -198,4 +198,4 @@ if __name__ == '__main__':
 
 ![图片](https://xilidou.oss-cn-beijing.aliyuncs.com/img/youdao.png)
 
-下载地址如下：https://www.xilidou.com/2017/10/24/%E6%9C%89%E9%81%93-Alfred-Workflow-%E5%A8%81%E5%8A%9B%E5%8A%A0%E5%BC%BA%E7%89%88/。
+下载地址如下：https://www.xilidou.com/2017/10/24/%E6%9C%89%E9%81%93-Alfred-Workflow-%E5%A8%81%E5%8A%9B%E5%8A%A0%E5%BC%BA%E7%89%88/
