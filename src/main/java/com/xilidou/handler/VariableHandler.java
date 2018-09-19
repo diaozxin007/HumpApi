@@ -13,6 +13,7 @@ import com.xilidou.utils.Md5Utils;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,18 +68,16 @@ public class VariableHandler {
         response.putHeader("content-type","application/json");
         List<String> result = new ArrayList<>();
 
-		if(param == null || " ".equals(param)){
+		if(StringUtils.isBlank(param)){
 		    result.add("request is null");
             response.end(JsonUtils.writeValue(result));
+            return;
         }
 
 		int status = NumberUtils.toInt(statusStr,0);
 
-
-
-
-
 		ApiResponse apiResponse = cachedResponse(param);
+
         List<String> translations = getTranslations(apiResponse,status);
         result.addAll(translations);
 
@@ -150,7 +149,6 @@ public class VariableHandler {
 	        log.error("error",e);
         }
         return null;
-
     }
 
 	private ApiResponse requestYoudao(String param){
@@ -167,8 +165,8 @@ public class VariableHandler {
 		MultiValueMap<String,String> headersMap = new LinkedMultiValueMap<>();
 		HttpEntity<MultiValueMap<String, String>> requestEntity  = new HttpEntity<>(bodyMap, headersMap);
 		return restTemplate.postForObject(url, requestEntity,ApiResponse.class);
-
-
 	}
+
+
 
 }
