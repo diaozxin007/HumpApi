@@ -24,7 +24,13 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
-            <version>3.5.2</version>
+            <version>3.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-client</artifactId>
+            <version>3.4.2</version>
         </dependency>
 
         <dependency>
@@ -76,8 +82,22 @@
         <dependency>
             <groupId>cn.leancloud</groupId>
             <artifactId>java-sdk</artifactId>
-            <version>0.1.6</version>
+            <version>0.2.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>cn.leancloud</groupId>
+                    <artifactId>leancloud-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/cn.leancloud/leancloud-common -->
+        <dependency>
+            <groupId>cn.leancloud</groupId>
+            <artifactId>leancloud-common</artifactId>
+            <version>0.2.4</version>
+        </dependency>
+
 
     </dependencies>
 

@@ -8,6 +8,8 @@ import com.huaban.analysis.jieba.JiebaSegmenter;
 import com.huaban.analysis.jieba.SegToken;
 import com.xilidou.Constants;
 import com.xilidou.entity.ApiResponse;
+import com.xilidou.serivce.CounterService;
+import com.xilidou.serivce.FormatService;
 import com.xilidou.utils.JsonUtils;
 import com.xilidou.utils.Md5Utils;
 import io.vertx.core.http.HttpServerResponse;
@@ -15,6 +17,7 @@ import io.vertx.ext.web.RoutingContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -54,6 +57,12 @@ public class VariableHandler {
 	@Autowired
     private Cache<String,ApiResponse> cache;
 
+	@Autowired
+	private FormatService formatService;
+
+	@Autowired
+	private CounterService counterService;
+
 	//1.直接翻译
 	//2.分词然后组合
 
@@ -63,6 +72,8 @@ public class VariableHandler {
 		String statusStr =routingContext.request().getParam("status");
 
 		log.info("q is {}, and status is {}",param,statusStr);
+
+		counterService.add(1);
 
         HttpServerResponse response =routingContext.response();
         response.putHeader("content-type","application/json");
@@ -76,9 +87,10 @@ public class VariableHandler {
 
 		int status = NumberUtils.toInt(statusStr,0);
 
+
 		ApiResponse apiResponse = cachedResponse(param);
 
-        List<String> translations = getTranslations(apiResponse,status);
+        List<String> translations = formatService.getTranslations(apiResponse,status);
         result.addAll(translations);
 
         List<SegToken> process = segmenter.process(param, JiebaSegmenter.SegMode.SEARCH);
@@ -87,59 +99,16 @@ public class VariableHandler {
                     .map(t -> cachedResponse(t.word))
                     .collect(Collectors.toList());
 
-            List<String> words = apiResponses.stream().map(this::getWord).collect(Collectors.toList());
+            List<String> words = apiResponses.stream().map(formatService::getWord).collect(Collectors.toList());
 
             String join = Joiner.on("_").join(words);
-            String s = formatString(join,status);
+            String s = formatService.formatString(join,status);
             result.add(s);
         }
-
-
         response.end(JsonUtils.writeValue(result));
 	}
 
-	private List<String> getTranslations(ApiResponse apiResponse,int status){
-	    List<String> translations = apiResponse.getTranslation();
-        List<String> subList = translations.subList(0, 1);
-        return subList.parallelStream().map(t->formatString(t,status)).collect(Collectors.toList());
-    }
 
-	private String getWord(ApiResponse apiResponse){
-        if(apiResponse.getErrorCode() == 0 && apiResponse.getBasic() != null){
-            return apiResponse.getBasic().getExplains().get(0);
-        }
-
-        else {
-            return apiResponse.getTranslation().get(0);
-        }
-    }
-
-	private String formatString(String str,int status){
-        String underline = CharMatcher.whitespace().trimAndCollapseFrom(str,'_');
-        underline = CharMatcher.inRange('a','z')
-                .or(CharMatcher.inRange('A','Z'))
-                .or(CharMatcher.is('_'))
-                .retainFrom(underline);
-        if(underline.startsWith("_")){
-            underline = underline.substring(1);
-        }
-
-        switch (status){
-            case Constants.LOWER_CAMEL:
-                return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,underline);
-            case Constants.LOWER_HYPHEN:
-                return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN,underline);
-            case Constants.LOWER_UNDERSCORE:
-                return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_UNDERSCORE,underline);
-            case Constants.UPPER_CAMEL:
-                return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL,underline);
-            case Constants.UPPER_UNDERSCORE:
-                return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_UNDERSCORE,underline);
-            default:
-                return  CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,underline);
-        }
-
-    }
 
     private ApiResponse cachedResponse(String param){
 	    try {

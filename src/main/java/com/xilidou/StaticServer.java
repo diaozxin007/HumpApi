@@ -1,5 +1,6 @@
 package com.xilidou;
 
+import com.xilidou.handler.ReactHandler;
 import com.xilidou.handler.VariableHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
@@ -17,11 +18,15 @@ public class StaticServer extends AbstractVerticle {
 	@Autowired
 	private VariableHandler variableHandler;
 
+	@Autowired
+	private ReactHandler reactHandler;
+
 	@Override
 	public void start() throws Exception {
 		Router router = Router.router(vertx);
 		router.route().handler(BodyHandler.create());
 		router.post("/api/hump").handler(routingContext ->variableHandler.get(routingContext));
+		router.post("/api/v2/hump").handler(routingContext -> reactHandler.get(routingContext));
 		vertx.createHttpServer().requestHandler(router::accept).listen(8080);
 
 	}
