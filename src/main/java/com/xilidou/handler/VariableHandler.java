@@ -86,8 +86,6 @@ public class VariableHandler {
         }
 
 		int status = NumberUtils.toInt(statusStr,0);
-
-
 		ApiResponse apiResponse = cachedResponse(param);
 
         List<String> translations = formatService.getTranslations(apiResponse,status);
