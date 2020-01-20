@@ -25,13 +25,12 @@ public class JsonUtils {
 		mapper.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
 		mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
 		mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
-	public final static ObjectMapper getObjectMapper() {
+	public static ObjectMapper getObjectMapper() {
 		return mapper;
 	}
 
@@ -44,7 +43,7 @@ public class JsonUtils {
 	 *            要转换的class
 	 * @return 转换好的对象
 	 */
-	public final static <T> T readValue(String json, Class<T> cls) {
+	public static <T> T readValue(String json, Class<T> cls) {
 		try {
 			return mapper.readValue(json, cls);
 		} catch (Exception e) {
@@ -53,11 +52,11 @@ public class JsonUtils {
 		return null;
 	}
 
-	public static <T> T readValue(byte[] bytes, Class<T> cls) {
+	public <T> T readValue(byte[] bytes, Class<T> cls) {
 		try {
 			return mapper.readValue(bytes, cls);
 		} catch (Exception e) {
-			log.error("byte:" + bytes, e);
+			log.error("byte: {}",bytes, e);
 		}
 		return null;
 	}
@@ -67,12 +66,11 @@ public class JsonUtils {
 	 *
 	 * @param json
 	 *            json数据
-	 * @param TypeReference
+	 * @param valueTypeRef<T>
 	 *            要转换的class
 	 * @return 转换好的对象
 	 */
-	@SuppressWarnings({ "rawtypes" })
-	public static <T> T readValue(String json, TypeReference valueTypeRef) {
+	public static <T> T readValue(String json, TypeReference<T> valueTypeRef) {
 		try {
 			return mapper.readValue(json, valueTypeRef);
 		} catch (Exception e) {
@@ -81,12 +79,11 @@ public class JsonUtils {
 		return null;
 	}
 
-	@SuppressWarnings({ "rawtypes" })
-	public static <T> T readValue(byte[] bytes, TypeReference valueTypeRef) {
+	public static <T> T readValue(byte[] bytes, TypeReference<T> valueTypeRef) {
 		try {
 			return mapper.readValue(bytes, valueTypeRef);
 		} catch (Exception e) {
-			log.error("byte:" + bytes, e);
+			log.error("byte: {}",bytes, e);
 		}
 		return null;
 	}
@@ -102,7 +99,7 @@ public class JsonUtils {
 		try {
 			return mapper.writeValueAsString(entity);
 		} catch (Exception e) {
-			log.error(entity.toString(), e);
+			log.error("error {}",entity, e);
 		}
 		return null;
 	}
@@ -111,7 +108,7 @@ public class JsonUtils {
 		try {
 			return mapper.writeValueAsBytes(entity);
 		} catch (Exception e) {
-			log.error(entity.toString(), e);
+			log.error("error {}",entity, e);
 		}
 		return null;
 	}

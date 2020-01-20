@@ -27,7 +27,7 @@ public class StaticServer extends AbstractVerticle {
 		router.route().handler(BodyHandler.create());
 		router.post("/api/hump").handler(routingContext ->variableHandler.get(routingContext));
 		router.post("/api/v2/hump").handler(routingContext -> reactHandler.get(routingContext));
-		vertx.createHttpServer().requestHandler(router::accept).listen(8080);
+		vertx.createHttpServer().requestHandler(router).listen(8080);
 
 	}
 

@@ -1,8 +1,10 @@
 package com.xilidou.handler;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.huaban.analysis.jieba.JiebaSegmenter;
 import com.huaban.analysis.jieba.SegToken;
 import com.xilidou.Constants;
@@ -12,14 +14,16 @@ import com.xilidou.utils.JsonUtils;
 import com.xilidou.utils.Md5Utils;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -35,7 +39,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReactHandler {
 
-	@Value("${url2}")
+	@Value("${url}")
 	private String url;
 
 	@Value("${appKey}")
@@ -71,6 +75,12 @@ public class ReactHandler {
 			return;
 		}
 
+		splitKeywords(param,t->{
+
+			List<String> splitKey = t.result();
+
+		});
+
 		response.putHeader("content-type", "application/json");
 
 		postHttp(param,handler->{
@@ -78,7 +88,8 @@ public class ReactHandler {
 				String json = handler.result();
 				ApiResponse apiResponse = JsonUtils.readValue(json,ApiResponse.class);
 				List<String> translations = formatService.getTranslations(apiResponse,status);
-				response.end(JsonUtils.writeValue(translations));
+				JsonArray objects = new JsonArray(translations);
+				response.end(objects.encodePrettily());
 
 			}else{
 				response.end(handler.cause().getMessage());
@@ -86,18 +97,23 @@ public class ReactHandler {
 		});
 	}
 
+	private void splitKeywords(String param,Handler<AsyncResult<List<String>>> handler){
+		List<SegToken> process = segmenter.process(param, JiebaSegmenter.SegMode.SEARCH);
+		if(CollectionUtils.isNotEmpty(process)){
+			List<String> collect = process.stream().map(t -> t.word).collect(Collectors.toList());
+			log.info("key is {}",collect);
+			Future.succeededFuture(collect).setHandler(handler);
+
+		}
+
+	}
+
+
 	private void postHttp(String param,Handler<AsyncResult<String>> handler){
 
 		webClient.post(url,"/api")
-				.as(BodyCodec.string())
-				.putHeader("content-type", "multipart/form-data")
 				.sendForm(requestFrom(param),ar->{
-					if(ar.succeeded()){
-						handler.handle(Future.succeededFuture(ar.result().body()));
-					}
-					else {
-						handler.handle(Future.failedFuture(ar.cause()));
-					}
+					Future.succeededFuture(ar.result().bodyAsString()).setHandler(handler);
 				});
 	}
 

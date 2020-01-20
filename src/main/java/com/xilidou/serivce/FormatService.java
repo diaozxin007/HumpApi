@@ -32,8 +32,6 @@ public class FormatService {
 		}
 
 		switch (status){
-			case Constants.LOWER_CAMEL:
-				return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL,underline);
 			case Constants.LOWER_HYPHEN:
 				return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN,underline);
 			case Constants.LOWER_UNDERSCORE:
